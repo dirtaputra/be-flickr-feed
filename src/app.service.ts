@@ -9,10 +9,28 @@ export class AppService {
   }
 
   async getFeed() {
+    // get data from flickr
     const feedData: any = await axios.get(
       'https://www.flickr.com/services/feeds/photos_public.gne',
     );
-    const feed: any = toJson(feedData.data);
-    return feed;
+
+    // Parse to Json
+    const data: any = toJson(feedData.data);
+    const feed = JSON.parse(data);
+
+    console.log(feed.feed.entry);
+
+    // Destructure Field Data
+    let feedArr = [];
+    for await (const data of feed.feed.entry) {
+      const feedObject = {
+        title: data.title,
+        pict: data.link[1].href,
+        published: data.published,
+        author: data.author.name,
+      };
+      feedArr.push(feedObject);
+    }
+    return feedArr;
   }
 }
